@@ -22,7 +22,6 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "db"
 
     @computed_field(return_type=str)
-    @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         return str(
             MultiHostUrl.build(
