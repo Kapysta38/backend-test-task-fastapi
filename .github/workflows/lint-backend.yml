@@ -24,5 +24,8 @@ jobs:
         with:
           version: "0.4.15"
           enable-cache: true
-      - run: uv run bash scripts/lint.sh
+      - name: Install dependencies
+        run: uv sync --dev
+      - name: Lint
+        run: uv run bash scripts/lint.sh
         working-directory: ./
