@@ -1,5 +1,6 @@
 from typing import Literal
 
+from anyio.functools import lru_cache
 from pydantic import computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings
@@ -35,4 +36,6 @@ class Settings(BaseSettings):
         )
 
 
-settings = Settings()
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
