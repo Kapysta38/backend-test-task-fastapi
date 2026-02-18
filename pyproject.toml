@@ -8,11 +8,15 @@ dependencies = [
     "bleach>=6.3.0",
     "fastapi[standard]>=0.129.0",
     "loguru>=0.7.3",
+    "passlib[bcrypt]>=1.7.4",
     "psycopg>=3.3.2",
     "psycopg2-binary>=2.9.11",
     "pydantic-settings>=2.13.0",
+    "python-jose[cryptography]>=3.5.0",
     "sqlalchemy>=2.0.46",
     "tenacity>=9.1.4",
+    "types-passlib>=1.7.7.20260211",
+    "types-python-jose>=3.5.0.20250531",
 ]
 
 [dependency-groups]

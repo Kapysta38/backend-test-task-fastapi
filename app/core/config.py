@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "changethis"
     POSTGRES_DB: str = "db"
 
+    SECRET_KEY: str = "CHANGE_ME"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
     @computed_field(return_type=str)
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         return str(
