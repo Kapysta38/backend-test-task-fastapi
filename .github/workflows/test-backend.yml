@@ -28,10 +28,10 @@ jobs:
       - run: docker compose up -d db
       - name: Migrate DB
         run: uv run bash scripts/prestart.sh
-        working-directory: .
+        working-directory: ./
       - name: Run tests
         run: uv run bash scripts/tests-start.sh "Coverage for ${{ github.sha }}"
-        working-directory: .
+        working-directory: ./
       - run: docker compose down -v --remove-orphans
       - name: Store coverage files
         uses: actions/upload-artifact@v4
