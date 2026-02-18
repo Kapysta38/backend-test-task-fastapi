@@ -24,6 +24,11 @@ target_metadata = None
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+from app.core.config import settings
+
+
+def get_url():
+    return str(settings.SQLALCHEMY_DATABASE_URI)
 
 
 def run_migrations_offline() -> None:
@@ -38,7 +43,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = get_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
