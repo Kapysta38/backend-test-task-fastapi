@@ -18,6 +18,14 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
 
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
   backend:
     image: "${DOCKER_IMAGE_BACKEND}"
     build:
