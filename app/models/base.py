@@ -8,6 +8,10 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, declarative_mixin, mapped_co
 
 @declarative_mixin
 class BaseDBModel:
+    """
+    Поля по-умолчанию для каждой таблицы в базе
+    """
+
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )

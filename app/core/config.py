@@ -1,16 +1,16 @@
-from typing import Literal
-
 from anyio.functools import lru_cache
 from pydantic import computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings
+
+from app.core.constants import Environment
 
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Backend Test Task FastAPI"
     VERSION: str = "0.1.0"
     DEBUG: bool = False
-    ENV: Literal["dev", "test", "prod"] = "dev"
+    ENV: Environment = Environment.DEV
 
     DOCS_URL_PATH: str = "/api/docs"
     REDOC_URL_PATH: str = "/api/redoc"
