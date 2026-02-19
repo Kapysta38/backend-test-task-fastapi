@@ -26,6 +26,7 @@ async def register(
     """
     Регистрация нового пользователя.
     """
+    # TODO: Тут бы добавить почтовую службу, чтобы верифицировать почту, ну и для восстановления пароля)
     try:
         return await service.create(session, user_in)
     except UserAlreadyExistsError:
@@ -51,8 +52,8 @@ async def login(
     )
     if not user:
         raise HTTPException(
-            401,
-            "Invalid email or password",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
         )
     data = {"sub": str(user.id)}
     access_token = create_access_token(
@@ -66,7 +67,7 @@ async def login(
     )
 
 
-@router.post("/refresh")
+@router.post("/refresh", response_model=Token)
 async def refresh(
     session: SessionDep,
     service: UserServiceDep,

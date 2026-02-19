@@ -1,33 +1,93 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 
 from app.core.constants import UserRole
 
 
 class UserBase(BaseModel):
-    email: EmailStr = Field(..., description="Email адрес пользователя")
-    full_name: str | None = Field(
-        None, description="Полное имя пользователя", min_length=2, max_length=255
+    """
+    Базовая схема пользователя
+    """
+
+    email: EmailStr = Field(
+        ..., description="Email адрес пользователя", examples=["vinnipyx38@gmail.com"]
     )
+    full_name: str | None = Field(
+        None,
+        description="Полное имя пользователя",
+        min_length=2,
+        max_length=255,
+        examples=["Лёва"],
+    )
+
+    @model_validator(mode="before")
+    def capitalize_full_name(cls, values):
+        full_name = values.get("full_name")
+        if full_name:
+            values["full_name"] = full_name.strip().capitalize()
+        return values
 
 
 class UserCreate(UserBase):
-    password: str = Field(min_length=8, max_length=72)
+    """
+    Схема для создания нового пользователя
+    """
+
+    password: str = Field(min_length=8, max_length=72, examples=["myBestPassword"])
 
 
 class UserUpdate(BaseModel):
+    """
+    Схема для обновления своего профиля
+    """
+
     full_name: str | None = Field(
-        None, description="Полное имя пользователя", min_length=2, max_length=255
+        None,
+        description="Полное имя пользователя",
+        min_length=2,
+        max_length=255,
+        examples=["Нелёва"],
     )
+
+    @model_validator(mode="before")
+    def capitalize_full_name(cls, values):
+        full_name = values.get("full_name")
+        if full_name:
+            values["full_name"] = full_name.strip().capitalize()
+        return values
 
 
 class AdminUserUpdate(BaseModel):
-    role: UserRole | None = Field(None, description="Роль пользователя")
-    is_active: bool | None = Field(None, description="Статус аккаунта пользователя")
+    """
+    Схема для обновления админом роли и статуса пользователя
+    """
+
+    role: UserRole | None = Field(
+        None,
+        description="Роль пользователя. Одна из двух 'admin' или 'user'",
+        examples=["admin"],
+    )
+    is_active: bool | None = Field(
+        None,
+        description="Статус аккаунта пользователя. True - активен, False - отключен",
+        examples=["True", "False"],
+    )
 
 
-class UserPublic(UserBase):
-    is_active: bool = Field(..., description="Статус аккаунта пользователя")
-    role: UserRole = Field(UserRole.USER, description="Роль пользователя")
+class UserPublic(UserBase, AdminUserUpdate):
+    """
+    Публичная схема пользователя
+    """
+
+    role: UserRole | None = Field(
+        None,
+        description="Роль пользователя. Одна из двух 'admin' или 'user'",
+        examples=["admin"],
+    )
+    is_active: bool | None = Field(
+        None,
+        description="Статус аккаунта пользователя. True - активен, False - отключен",
+        examples=["True", "False"],
+    )
 
     class Config:
         from_attributes = True
