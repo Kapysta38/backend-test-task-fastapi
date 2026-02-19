@@ -1,15 +1,31 @@
+import uuid
 from collections.abc import AsyncGenerator
+from typing import Annotated
 
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
 from loguru import logger
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_settings
 from app.db.session import AsyncSessionLocal
+from app.models.user import User
+from app.schemas.user import UserPublic
+from app.services.user import UserService, get_user_service
+
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl=f"/api/{get_settings().API_VERSION}/auth/login"
+)
+TokenDep = Annotated[str, Depends(oauth2_scheme)]
 
 
-def get_app_settings() -> Settings:
+async def get_app_settings() -> Settings:
     return get_settings()
+
+
+SettingsDep = Annotated[Settings, Depends(get_app_settings)]
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -19,3 +35,53 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     except SQLAlchemyError as e:
         logger.error("Unable to yield session in database dependency")
         logger.error(e)
+        raise e
+
+
+SessionDep = Annotated[AsyncSession, Depends(get_db)]
+
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+
+
+async def get_current_user(
+    session: SessionDep,
+    user_service: UserServiceDep,
+    token: TokenDep,
+    settings: SettingsDep,
+) -> User:
+    unauthorized_exc = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    forbidden_exc = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="User is not active or no permission",
+    )
+
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+        )
+
+        user_id: uuid.UUID | None = payload.get("sub")
+
+        if user_id is None:
+            raise unauthorized_exc
+
+    except JWTError:
+        raise unauthorized_exc
+
+    user = await user_service.get(session, user_id)
+    if not user:
+        raise unauthorized_exc
+    if not user.is_active:
+        raise forbidden_exc
+
+    return user
+
+
+CurrentUser = Annotated[UserPublic, Depends(get_current_user)]

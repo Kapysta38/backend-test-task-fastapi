@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
-from app.api.deps import get_app_settings
-from app.core.config import Settings
+from app.api.deps import SettingsDep
 from app.schemas.common import HealthResponse
 
 router = APIRouter()
@@ -9,7 +8,7 @@ router = APIRouter()
 
 @router.get("/health-check", response_model=HealthResponse)
 async def health_check(
-    settings: Settings = Depends(get_app_settings),
+    settings: SettingsDep,
 ) -> HealthResponse:
     """
     Проверка работоспособности API.
