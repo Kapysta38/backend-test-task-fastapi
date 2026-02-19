@@ -13,5 +13,11 @@ class Category(Base):
     __tablename__ = "categories"
 
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    slug: Mapped[str] = mapped_column(
+        String(255),
+        unique=True,
+        index=True,
+        nullable=False,
+    )
 
     posts: Mapped[list["Post"]] = relationship("Post", back_populates="category")

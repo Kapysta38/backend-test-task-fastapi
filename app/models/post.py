@@ -17,6 +17,12 @@ class Post(Base):
 
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     content_html: Mapped[str] = mapped_column(Text, nullable=False)
+    slug: Mapped[str] = mapped_column(
+        String(255),
+        unique=True,
+        index=True,
+        nullable=False,
+    )
 
     category_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("categories.id"))
     category: Mapped["Category"] = relationship("Category", back_populates="posts")
