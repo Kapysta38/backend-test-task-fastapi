@@ -6,6 +6,7 @@ from fastapi import FastAPI
 
 from app.api.v1.router import router as api_router
 from app.core.config import get_settings
+from app.core.middlewares import rate_limit_middleware
 from app.db.session import initialize_database
 
 
@@ -28,6 +29,7 @@ app = FastAPI(
 )
 
 app.include_router(api_router)
+app.middleware("http")(rate_limit_middleware)
 
 
 if __name__ == "__main__":

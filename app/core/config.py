@@ -52,6 +52,11 @@ class Settings(BaseSettings):
         "img": ["alt"],
     }
 
+    REDIS_HOST: str
+    REDIS_PORT: int
+
+    MAX_REQUESTS_PER_MINUTE: int = 60
+
     @computed_field(return_type=str)
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         return str(

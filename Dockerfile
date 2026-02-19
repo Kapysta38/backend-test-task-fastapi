@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.13-slim
 
 ENV PYTHONUNBUFFERED=1
 
@@ -16,6 +16,14 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project
+
+RUN apt-get update && apt-get install -y \
+    python3-setuptools \
+    build-essential \
+    python3-dev \
+    libpq-dev \
+ && rm -rf /var/lib/apt/lists/*
+
 
 ENV PYTHONPATH=/app
 
