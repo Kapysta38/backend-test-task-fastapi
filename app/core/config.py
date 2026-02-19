@@ -30,6 +30,28 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
 
+    ALLOWED_TAGS: list[str] = [
+        "p",
+        "br",
+        "strong",
+        "em",
+        "ul",
+        "ol",
+        "li",
+        "a",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "blockquote",
+        "code",
+        "pre",
+    ]
+    ALLOWED_ATTRIBUTES: dict[str, list[str]] = {
+        "a": ["href", "title"],
+        "img": ["alt"],
+    }
+
     @computed_field(return_type=str)
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         return str(

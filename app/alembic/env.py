@@ -16,6 +16,8 @@ if config.config_file_name is not None:
 
 from app.models.base import Base
 from app.models.user import User
+from app.models.post import Post
+from app.models.category import Category
 
 
 target_metadata = Base.metadata
