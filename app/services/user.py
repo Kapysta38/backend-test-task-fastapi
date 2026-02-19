@@ -6,7 +6,7 @@ from app.core.exceptions import UserAlreadyExistsError
 from app.core.security import hash_password, verify_password
 from app.db.crud import CRUDFull
 from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import AdminUserUpdate, UserCreate, UserUpdate
 
 
 class UserService(CRUDFull[User, UserCreate, UserUpdate]):
@@ -47,6 +47,16 @@ class UserService(CRUDFull[User, UserCreate, UserUpdate]):
         await session.commit()
         await session.refresh(obj)
         return obj
+
+    async def admin_update(
+        self, session: AsyncSession, db_obj: User, obj_in: AdminUserUpdate
+    ) -> User:
+        update_data = obj_in.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(db_obj, field, value)
+        await session.commit()
+        await session.refresh(db_obj)
+        return db_obj
 
 
 def get_user_service() -> UserService:
