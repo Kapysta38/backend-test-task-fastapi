@@ -1,5 +1,5 @@
 from anyio.functools import lru_cache
-from pydantic import computed_field
+from pydantic import EmailStr, computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings
 
@@ -22,10 +22,13 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "changethis"
     POSTGRES_DB: str = "db"
 
-    SECRET_KEY: str = "CHANGE_ME"
+    SECRET_KEY: str = "changethis"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    FIRST_SUPERUSER: EmailStr
+    FIRST_SUPERUSER_PASSWORD: str
 
     @computed_field(return_type=str)
     def SQLALCHEMY_DATABASE_URI(self) -> str:
@@ -43,4 +46,4 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    return Settings()  # type: ignore

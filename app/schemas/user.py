@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, EmailStr, Field, model_validator
 
 from app.core.constants import UserRole
@@ -20,7 +22,7 @@ class UserBase(BaseModel):
     )
 
     @model_validator(mode="before")
-    def capitalize_full_name(cls, values):
+    def capitalize_full_name(cls, values: dict[str, Any]) -> dict[str, Any]:
         full_name = values.get("full_name")
         if full_name:
             values["full_name"] = full_name.strip().capitalize()
@@ -49,7 +51,7 @@ class UserUpdate(BaseModel):
     )
 
     @model_validator(mode="before")
-    def capitalize_full_name(cls, values):
+    def capitalize_full_name(cls, values: dict[str, Any]) -> dict[str, Any]:
         full_name = values.get("full_name")
         if full_name:
             values["full_name"] = full_name.strip().capitalize()
