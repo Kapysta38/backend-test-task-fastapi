@@ -8,4 +8,7 @@ router = APIRouter()
 
 @router.get("/me", response_model=UserPublic)
 async def get_current_user(current_user: CurrentUser) -> UserPublic:
+    """
+    Получение данных текущего авторизованного пользователя
+    """
     return current_user
