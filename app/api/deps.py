@@ -1,5 +1,5 @@
 import uuid
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Callable
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
@@ -10,9 +10,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_settings
+from app.core.constants import UserRole
 from app.db.session import AsyncSessionLocal
 from app.models.user import User
-from app.schemas.user import UserPublic
 from app.services.user import UserService, get_user_service
 
 oauth2_scheme = OAuth2PasswordBearer(
@@ -84,4 +84,19 @@ async def get_current_user(
     return user
 
 
-CurrentUser = Annotated[UserPublic, Depends(get_current_user)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+def require_role(*roles: UserRole) -> Callable[..., User]:
+    def checker(user: CurrentUser) -> User:
+        if user.role not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Denied permissions"
+            )
+
+        return user
+
+    return checker
+
+
+AdminUser = Annotated[User, Depends(require_role(UserRole.ADMIN))]
