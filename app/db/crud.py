@@ -42,20 +42,18 @@ class CRUDRead(Generic[ModelType]):
         *filters: Filter,
         page: int = 1,
         size: int = 100,
-        order_by: str = "id",
+        order_by: ColumnType | None = None,
         order_dir: OrderDirection = OrderDirection.ASC,
     ) -> tuple[Sequence[ModelType], int]:
         offset = (page - 1) * size
 
-        if not hasattr(self.model, order_by):
-            raise ValueError(f"Invalid order_by field: {order_by}")
-
-        column = getattr(self.model, order_by)
+        if order_by is None:
+            order_by = self.model.id
 
         if order_dir is OrderDirection.DESC:
-            column = column.desc()
+            column = order_by.desc()
         else:
-            column = column.asc()
+            column = order_by.asc()
 
         stmt = select(self.model).order_by(column).offset(offset).limit(size)
 
@@ -118,10 +116,3 @@ class CRUDFull(
 ):
     def __init__(self, model: type[ModelType]):
         super().__init__(model)
-
-    async def remove(self, session: AsyncSession, id: Any) -> ModelType | None:
-        obj = await self.get(session, id)
-        if obj:
-            await session.delete(obj)
-            await session.commit()
-        return obj

@@ -13,6 +13,8 @@ from app.core.config import Settings, get_settings
 from app.core.constants import UserRole
 from app.db.session import AsyncSessionLocal
 from app.models.user import User
+from app.services.category import CategoryService, get_category_service
+from app.services.post import PostService, get_post_service
 from app.services.user import UserService, get_user_service
 
 oauth2_scheme = OAuth2PasswordBearer(
@@ -41,6 +43,9 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 SessionDep = Annotated[AsyncSession, Depends(get_db)]
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+
+PostServiceDep = Annotated[PostService, Depends(get_post_service)]
+CategoryServiceDep = Annotated[CategoryService, Depends(get_category_service)]
 
 
 async def get_current_user(

@@ -21,13 +21,6 @@ class UserBase(BaseModel):
         examples=["Лёва"],
     )
 
-    @model_validator(mode="before")
-    def capitalize_full_name(cls, values: dict[str, Any]) -> dict[str, Any]:
-        full_name = values.get("full_name")
-        if full_name:
-            values["full_name"] = full_name.strip().capitalize()
-        return values
-
 
 class UserCreate(UserBase):
     """
@@ -35,6 +28,13 @@ class UserCreate(UserBase):
     """
 
     password: str = Field(min_length=8, max_length=72, examples=["myBestPassword"])
+
+    @model_validator(mode="before")
+    def capitalize_full_name(cls, values: dict[str, Any]) -> dict[str, Any] | None:
+        full_name = values.get("full_name")
+        if full_name:
+            values["full_name"] = full_name.strip().capitalize()
+        return values
 
 
 class UserUpdate(BaseModel):
