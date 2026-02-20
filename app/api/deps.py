@@ -7,11 +7,11 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from loguru import logger
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.config import Settings, get_settings
 from app.core.constants import UserRole
-from app.db.session import AsyncSessionLocal
+from app.db.session import get_async_engine
 from app.models.user import User
 from app.services.category import CategoryService, get_category_service
 from app.services.post import PostService, get_post_service
@@ -31,8 +31,11 @@ SettingsDep = Annotated[Settings, Depends(get_app_settings)]
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async_session = async_sessionmaker(
+        bind=get_async_engine(), expire_on_commit=False, class_=AsyncSession
+    )
     try:
-        async with AsyncSessionLocal() as session:
+        async with async_session() as session:
             yield session
     except SQLAlchemyError as e:
         logger.error("Unable to yield session in database dependency")
@@ -72,9 +75,9 @@ async def get_current_user(
             algorithms=[settings.ALGORITHM],
         )
 
-        user_id: uuid.UUID | None = payload.get("sub")
-
-        if user_id is None:
+        try:
+            user_id = uuid.UUID(payload.get("sub"))
+        except ValueError:
             raise unauthorized_exc
 
     except JWTError:

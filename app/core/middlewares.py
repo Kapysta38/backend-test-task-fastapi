@@ -4,12 +4,13 @@ from fastapi import Request, status
 from starlette.responses import JSONResponse, Response
 
 from app.core.config import get_settings
-from app.core.redis import redis
+from app.core.redis import get_redis_client
 
 
 async def rate_limit_middleware(
     request: Request, call_next: Callable[[Request], Awaitable[Response]]
 ) -> Response:
+    redis = await get_redis_client()
     ip = request.client.host if request.client else "unknown"
     key = f"rate:{ip}"
     count = await redis.incr(key)

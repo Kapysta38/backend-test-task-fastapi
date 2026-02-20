@@ -62,7 +62,10 @@ class CRUDRead(Generic[ModelType]):
 
         items = (await session.scalars(stmt)).all()
 
-        total = await session.scalar(select(func.count()).select_from(self.model)) or 0
+        count_stmt = select(func.count()).select_from(self.model)
+        if filters:
+            count_stmt = count_stmt.where(*filters)
+        total = await session.scalar(count_stmt) or 0
 
         return items, total
 

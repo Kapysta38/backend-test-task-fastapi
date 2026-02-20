@@ -83,6 +83,7 @@ async def get_posts_for_category(
         page=page,
         size=size,
         order_by=post_service.model.date_created,
+        order_dir=OrderDirection.DESC,
     )
 
     pages = ceil(total / size) if total else 1
@@ -157,7 +158,14 @@ async def update_category(
 
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
-
+    exists_category = await service.get_by(
+        session, service.model.name, category_in.name
+    )
+    if exists_category:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Category with this name already exists: {exists_category.name}",
+        )
     category = await service.update(session, category, category_in)
     return category
 

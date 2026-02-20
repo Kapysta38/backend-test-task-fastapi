@@ -24,13 +24,12 @@ jobs:
         with:
           version: "0.7.3"
           enable-cache: true
+      - name: Copy env
+        run: cp .env.example .env
       - run: docker compose down -v --remove-orphans
       - run: docker compose up -d db
-      - name: Migrate DB
-        run: uv run bash scripts/prestart.sh
-        working-directory: ./
       - name: Run tests
-        run: uv run bash scripts/tests-start.sh "Coverage for ${{ github.sha }}"
+        run: uv run bash scripts/test.sh "Coverage for ${{ github.sha }}"
         working-directory: ./
       - run: docker compose down -v --remove-orphans
       - name: Store coverage files

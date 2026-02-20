@@ -1,3 +1,4 @@
+import uuid
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -86,7 +87,14 @@ async def refresh(
             detail="Invalid refresh token",
         )
 
-    user_id = payload.get("sub")
+    try:
+        user_id = uuid.UUID(payload.get("sub"))
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user ID in token",
+        )
+
     if not user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

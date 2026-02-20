@@ -1,4 +1,5 @@
 from pydantic import EmailStr
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import UserRole
@@ -33,20 +34,25 @@ class UserService(CRUDFull[User, UserCreate, UserUpdate]):
         await session.refresh(obj)
         return obj
 
-    async def create_superuser(self, session: AsyncSession, obj_in: UserCreate) -> User:
-        if await self.get_by(session, User.email, obj_in.email):
-            raise UserAlreadyExistsError()
-        obj = self.model(
-            email=obj_in.email,
-            full_name=obj_in.full_name,
-            hashed_password=hash_password(obj_in.password),
-            role=UserRole.ADMIN,
-            is_active=True,
+    async def create_superuser(
+        self, session: AsyncSession, obj_in: UserCreate
+    ) -> User | None:
+        stmt = (
+            insert(User)
+            .values(
+                email=obj_in.email,
+                full_name=obj_in.full_name,
+                hashed_password=hash_password(obj_in.password),
+                role=UserRole.ADMIN,
+                is_active=True,
+            )
+            .on_conflict_do_nothing(index_elements=["email"])
         )
-        session.add(obj)
+
+        await session.execute(stmt)
         await session.commit()
-        await session.refresh(obj)
-        return obj
+        user = await self.get_by(session, User.email, obj_in.email)
+        return user
 
     async def admin_update(
         self, session: AsyncSession, db_obj: User, obj_in: AdminUserUpdate

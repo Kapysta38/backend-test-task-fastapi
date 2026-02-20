@@ -18,18 +18,25 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     # shutdown
 
 
-settings = get_settings()
-app = FastAPI(
-    title=settings.PROJECT_NAME,
-    version=settings.VERSION,
-    root_path=f"/api/{settings.API_VERSION}",
-    docs_url=settings.DOCS_URL_PATH,
-    redoc_url=settings.REDOC_URL_PATH,
-    lifespan=lifespan,
-)
+def create_app() -> FastAPI:
+    settings = get_settings()
 
-app.include_router(api_router)
-app.middleware("http")(rate_limit_middleware)
+    app = FastAPI(
+        title=settings.PROJECT_NAME,
+        version=settings.VERSION,
+        root_path=f"/api/{settings.API_VERSION}",
+        docs_url=settings.DOCS_URL_PATH,
+        redoc_url=settings.REDOC_URL_PATH,
+        lifespan=lifespan,
+    )
+
+    app.include_router(api_router)
+    app.middleware("http")(rate_limit_middleware)
+
+    return app
+
+
+app = create_app()
 
 
 if __name__ == "__main__":
