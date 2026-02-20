@@ -29,11 +29,15 @@ ENV PYTHONPATH=/app
 
 COPY ./scripts /app/scripts
 
-COPY ./pyproject.toml ./uv.lock ./alembic.ini /app/
+COPY ./pyproject.toml ./uv.lock ./alembic.ini  /app/
 
 COPY ./app /app/app
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
+
+RUN chmod +x scripts/prestart.sh
+
+ENTRYPOINT ["scripts/prestart.sh"]
 
 CMD ["fastapi", "run", "--workers", "4", "app/main.py"]

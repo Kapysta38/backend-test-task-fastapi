@@ -27,8 +27,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-    FIRST_SUPERUSER: EmailStr
-    FIRST_SUPERUSER_PASSWORD: str
+    FIRST_SUPERUSER: EmailStr = "admin@example.com"
+    FIRST_SUPERUSER_PASSWORD: str = "changethis"
 
     ALLOWED_TAGS: list[str] = [
         "p",
@@ -52,8 +52,8 @@ class Settings(BaseSettings):
         "img": ["alt"],
     }
 
-    REDIS_HOST: str
-    REDIS_PORT: int
+    REDIS_HOST: str = "redis"
+    REDIS_PORT: str = "6379"
 
     MAX_REQUESTS_PER_MINUTE: int = 60
 
@@ -73,4 +73,4 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()  # type: ignore
+    return Settings()
