@@ -46,6 +46,19 @@ services:
         restart: true
     env_file:
       - .env
+    # DEV
+    develop:
+      watch:
+        - path: .
+          action: sync
+          target: /app
+          ignore:
+            - .venv
+            - .env
+            - tests
+        - path: ./pyproject.toml
+          action: rebuild
+
 
   redis:
     image: redis:7-alpine
